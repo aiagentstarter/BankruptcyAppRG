@@ -18,4 +18,11 @@ az webapp config appsettings set \
     ATTORNEY_PASS=password123 \
     CLIENT_PASS=clientpass
 
+# Configure startup command
+echo "Configuring startup command..."
+az webapp config set \
+  --name bankruptcyapp \
+  --resource-group BankruptcyAppRG \
+  --startup-file "startup.sh"
+
 echo "Deployment complete!" 
