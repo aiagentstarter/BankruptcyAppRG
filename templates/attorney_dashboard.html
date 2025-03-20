@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attorney Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+        .file-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-list li:last-child {
+            border-bottom: none;
+        }
+        .summary {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .key-values {
+            margin-top: 20px;
+        }
+        .key-values ul {
+            list-style: none;
+            padding: 0;
+        }
+        .key-values li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .key-values li:last-child {
+            border-bottom: none;
+        }
+        .error {
+            color: #dc3545;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Attorney Dashboard</h1>
+        
+        <!-- Add Client Form -->
+        <h2>Add New Client</h2>
+        <form method="post">
+            <input type="hidden" name="username" value="attorney">
+            <input type="hidden" name="password" value="password123">
+            <input type="hidden" name="action" value="add_client">
+            
+            <div class="form-group">
+                <label for="name">Client Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="case_id">Case ID:</label>
+                <input type="text" id="case_id" name="case_id" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Add Client">
+            </div>
+        </form>
+    </div>
+    
+    <!-- Client List -->
+    <div class="container">
+        <h2>Client List</h2>
+        {% if clients %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Case ID</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                        <tr>
+                            <td>{{ client[0] }}</td>
+                            <td>{{ client[1] }}</td>
+                            <td>{{ client[2] }}</td>
+                            <td>{{ client[3] }}</td>
+                            <td>
+                                <form method="post" style="display:inline;">
+                                    <input type="hidden" name="username" value="attorney">
+                                    <input type="hidden" name="password" value="password123">
+                                    <input type="hidden" name="action" value="list_files">
+                                    <input type="hidden" name="client_id" value="{{ client[0] }}">
+                                    <input type="submit" value="View Files">
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No clients added yet.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Files for Selected Client -->
+    {% if files %}
+        <div class="container">
+            <h2>Files for Client ID {{ client_id }}</h2>
+            <ul class="file-list">
+                {% for file in files %}
+                    <li>
+                        <a href="{{ file }}" target="_blank">{{ file.split('/')[-1].split('?')[0] }}</a>
+                        <form method="post" style="display:inline;">
+                            <input type="hidden" name="username" value="attorney">
+                            <input type="hidden" name="password" value="password123">
+                            <input type="hidden" name="action" value="process">
+                            <input type="hidden" name="client_id" value="{{ client_id }}">
+                            <input type="hidden" name="blob_name" value="{{ file.split('/')[-1].split('?')[0] }}">
+                            <input type="submit" value="Process with AI">
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    
+    <!-- AI Summary -->
+    {% if summary %}
+        <div class="container">
+            <h2>Document Analysis Summary</h2>
+            <div class="summary">
+                <h3>Extracted Text</h3>
+                <p>{{ summary.text }}</p>
+                
+                <div class="key-values">
+                    <h3>Key Data</h3>
+                    <ul>
+                        {% for key, value in summary.key_values.items() %}
+                            <li><strong>{{ key }}:</strong> {{ value }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</body>
+</html> 
